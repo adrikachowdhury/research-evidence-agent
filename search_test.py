@@ -9,7 +9,7 @@ genai_client = genai.Client(api_key=GEMINI_API_KEY)
 qdrant_client = QdrantClient(path="qdrant_db")
 
 # Write a question
-question = "Why does the Transformer use attention?"
+question = "What is an attention mechanism?"
 
 # Convert the question into an embedding
 response = genai_client.models.embed_content(
@@ -17,6 +17,7 @@ response = genai_client.models.embed_content(
     contents=question
 )
 
+# list of floats representing the meaning of the ques
 question_embedding = response.embeddings[0].values # [0] since there is only one ques
 
 try:
