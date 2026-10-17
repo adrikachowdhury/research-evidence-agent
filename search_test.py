@@ -9,7 +9,7 @@ genai_client = genai.Client(api_key=GEMINI_API_KEY)
 qdrant_client = QdrantClient(path="qdrant_db")
 
 # Write a question
-question = "What is an attention mechanism?"
+question = "Why does the Transformer use attention?"
 
 # Convert the question into an embedding
 response = genai_client.models.embed_content(
