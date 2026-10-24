@@ -1,4 +1,4 @@
-from qdrant_client import QdrantClient
+from qdrant_client import QdrantClient, qdrant_client
 from qdrant_client.models import Distance, VectorParams, PointStruct
 
 # Create a local database
@@ -27,7 +27,7 @@ points = [] # to hold records
 # go through each chunk and assign each one an ID
 for chunk_id, chunk in enumerate(chunks):
     points.append(
-        # packages the ID, vector, and metadata into one Qdrant record
+        # packages the ID, vector, and metadata into one Qdrant record (each chunk)
         PointStruct(
             id=chunk_id, # gives each record a unique ID
             vector=chunk["embedding"], # the 3072-dim embedding vector
@@ -47,3 +47,6 @@ client.upsert(
 )
 
 print("Chunks stored:", len(points))
+
+# close local DB connection
+qdrant_client.close()

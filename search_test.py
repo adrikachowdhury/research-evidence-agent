@@ -23,7 +23,7 @@ question_embedding = response.embeddings[0].values # [0] since there is only one
 try:
     # Search for the 3 closest chunks
     results = qdrant_client.query_points(
-        collection_name="research_papers", # collection containing paper chunks
+        collection_name="research_papers", # cspecifies which collection to search
         query=question_embedding,
         limit=3, # return up to 3 closest matches
         with_payload=True # include the chunk metadata in the results

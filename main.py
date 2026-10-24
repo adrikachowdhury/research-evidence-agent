@@ -19,7 +19,7 @@ start=1- makes page numbering start from 1
 """
 
 for page_number, page in enumerate(document, start=1):
-    text = page.get_text("text").strip() # extracts text (text mode)
+    text = page.get_text("text").strip() # extracts text ("text" mode)
 
     # skip pages with no text (empty pages)
     if text:
@@ -88,11 +88,13 @@ for page in pages:
 # print("Length:", len(chunks[0]["text"]))
 # print("Text:", repr(chunks[0]["text"][:500]))
 
-# Connect to Google's API
+# Connect to Google's API using the API key
 client = genai.Client(api_key=GEMINI_API_KEY)
 
 # processes every chunk and generates embeddings for each chunk's text
 # makes a separate API call for each chunk
+
+# embed.chunk- converts a chunk of text into a numerical vector
 for chunk in chunks:
     response = client.models.embed_content(
         model="gemini-embedding-001",
@@ -104,7 +106,7 @@ for chunk in chunks:
 # print("Chunks with embeddings:", len(chunks))
 # print("Embedding dimensions:", len(chunks[0]["embedding"]))
 
-from qdrant_client import QdrantClient
+from qdrant_client import QdrantClient, qdrant_client
 from qdrant_client.models import Distance, VectorParams, PointStruct
 
 # Create a local Qdrant database
@@ -144,3 +146,5 @@ client.upsert(
 )
 
 print("Chunks stored:", len(points))
+
+qdrant_client.close()
