@@ -2,11 +2,13 @@ from google import genai
 from config import GEMINI_API_KEY
 from qdrant_client import QdrantClient
 
+r"""Connect to Gemini and Qdrant"""
 genai_client = genai.Client(api_key=GEMINI_API_KEY)
 qdrant_client = QdrantClient(path="qdrant_db")
 
 question = "How does multi-head attention work?"
 
+r"""Turn the question into an embedding"""
 response = genai_client.models.embed_content(
     model="gemini-embedding-001",
     contents=question
@@ -14,6 +16,7 @@ response = genai_client.models.embed_content(
 
 question_embedding = response.embeddings[0].values
 
+r"""Retrieve the 3 most relevant chunks"""
 try:
     results = qdrant_client.query_points(
         collection_name="research_papers",
@@ -25,7 +28,7 @@ try:
     # Collect the retrieved evidence
     evidence = []
 
-    for result in results.points:
+    for result in results.points: # goes through each retrieved chunk
         evidence.append(
             f"Page {result.payload['page no']}:\n"
             f"{result.payload['text']}"
