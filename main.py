@@ -21,6 +21,9 @@ start=1- makes page numbering start from 1
 for page_number, page in enumerate(document, start=1):
     text = page.get_text("text").strip() # extracts text ("text" mode)
 
+    # if page_number == 1:
+    #     print(text[:1500])
+
     # skip pages with no text (empty pages)
     if text:
         pages.append({
@@ -32,10 +35,6 @@ for page_number, page in enumerate(document, start=1):
     page[0]- 1st page's record
     page[0]["text"]- 1st page's text
     """
-
-# print("Pages extracted:", len(pages))
-# print(pages[0]["page no"])
-# print(pages[0]["text"][:500])
 
 r"""
 take one page's text
@@ -72,21 +71,6 @@ for page in pages:
 
         # Move forward, leaving some text shared with the next chunk
         start = end - overlap
-
-# print("Pages extracted:", len(pages))
-# print("Chunks created:", len(chunks))
-
-# # Inspect the last chunk
-# print("\nLast chunk:")
-# print("Source:", chunks[37]["source"])
-# print("Page:", chunks[37]["page no"])
-# print("Length:", len(chunks[37]["text"]))
-# print("Text:", repr(chunks[37]["text"][:500]))
-
-# # Inspect the first chunk
-# print("Page:", chunks[0]["page no"])
-# print("Length:", len(chunks[0]["text"]))
-# print("Text:", repr(chunks[0]["text"][:500]))
 
 # Connect to Google's API using the API key
 client = genai.Client(api_key=GEMINI_API_KEY)
@@ -145,6 +129,6 @@ client.upsert(
     points=points
 )
 
-print("Chunks stored:", len(points))
+# print("Chunks stored:", len(points))
 
-qdrant_client.close()
+client.close()
