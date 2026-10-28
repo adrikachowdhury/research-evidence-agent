@@ -6,7 +6,7 @@ r"""Connect to Gemini and Qdrant"""
 genai_client = genai.Client(api_key=GEMINI_API_KEY)
 qdrant_client = QdrantClient(path="qdrant_db")
 
-question = "What programming language was used to implement the Transformer?"
+question = "Who wrote the paper Attention Is All You Need? List the authors."
 
 r"""Turn the question into an embedding"""
 response = genai_client.models.embed_content(
@@ -17,7 +17,6 @@ response = genai_client.models.embed_content(
 question_embedding = response.embeddings[0].values
 
 try:
-
     # Retrieve the 3 most relevant chunks
     # results holds the returned info
     results = qdrant_client.query_points(
@@ -54,19 +53,22 @@ try:
     prompt = f"""
     Answer the question using only the evidence below.
 
-    If the evidence is insufficient, say so.
-    Cite the relevant page numbers in your answer.
+    Rules:
+    - Make only claims supported by the evidence.
+    - If the evidence is insufficient, clearly say so.
+    - Cite the page number for each factual claim.
+    - Do not invent facts or citations.
 
     Evidence:
     {context}
 
-    Question: {question}
-    """
+Question: {question}
+"""
     # ask Gemini to generate an answer
     # sends that prompt to Gemini
     # Gemini reads the ques and evidence, then generates ans
     response = genai_client.models.generate_content(
-        model="gemini-3.8-flash",
+        model="gemini-flash-latest",
         contents=prompt
     )
 
