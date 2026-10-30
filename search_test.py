@@ -5,13 +5,9 @@ from qdrant_client import QdrantClient
 # Connect to Google's API
 genai_client = genai.Client(api_key=GEMINI_API_KEY)
 
-# Open the existing local Qdrant database
 qdrant_client = QdrantClient(path="qdrant_db")
-
-# Write a question
 question = "Why does the Transformer use attention?"
 
-# Convert the question into an embedding
 response = genai_client.models.embed_content(
     model="gemini-embedding-001",
     contents=question

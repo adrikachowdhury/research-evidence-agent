@@ -2,13 +2,10 @@ from google import genai
 from config import GEMINI_API_KEY
 from qdrant_client import QdrantClient
 
-r"""Connect to Gemini and Qdrant"""
 genai_client = genai.Client(api_key=GEMINI_API_KEY)
 qdrant_client = QdrantClient(path="qdrant_db")
-
 question = "Who wrote the paper Attention Is All You Need? List the authors."
 
-r"""Turn the question into an embedding"""
 response = genai_client.models.embed_content(
     model="gemini-embedding-001",
     contents=question
