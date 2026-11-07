@@ -1,15 +1,15 @@
-def _collect_pages(pages, pdf_path, page, page_number):
-    text = page.get_text("text").strip() # extracts text ("text" mode)
-    # skip pages with no text (empty pages)
-    if text:
-        pages.append({
-            "text": text,
-            "page no": page_number,
-            "source": pdf_path
-        })
+def _collect_research_papers(pages, document, pdf_path):    
+    for page_number, page in enumerate(document, start=1):
+        text = page.get_text("text").strip()
     
-    # page[0]- 1st page's record
-    # page[0]["text"]- 1st page's text
+        if text:
+            pages.append({
+                "text": text,
+                "page no": page_number,
+                "source": pdf_path
+            })
+    
+    document.close()
 
 def _chunking_texts(chunk_size, overlap, chunks, page, start, text):
     end = min(start + chunk_size, len(text)) # chunk ending index
@@ -29,13 +29,13 @@ def _chunking_texts(chunk_size, overlap, chunks, page, start, text):
     start = end - overlap
     return start
 
-def _embed_chunks(client, chunk):
-    # processes every chunk and generates embeddings for each chunk's text
-    # makes a separate API call for each chunk
+def _embed_chunks(client, chunks):
+    # Generate embeddings for all chunks in the batch
     response = client.models.embed_content(
         model="gemini-embedding-001",
-        contents=chunk["text"]
+        contents=[chunk["text"] for chunk in chunks]
     )
-    chunk["embedding"] = response.embeddings[0].values # creating new key-value pair in the chunk dict
 
-    client.close()
+    # Match each embedding with its original chunk
+    for chunk, embedding in zip(chunks, response.embeddings):
+        chunk["embedding"] = embedding.values
