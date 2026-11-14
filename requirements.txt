@@ -2,3 +2,5 @@ google-genai
 python-dotenv
 PyMuPDF
 qdrant-client
+fastapi
+uvicorn

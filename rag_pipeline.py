@@ -1,14 +1,19 @@
+### answer_question() → retrieve_evidence() → generate_answer()
+
 from google import genai
 from config import GEMINI_API_KEY
 from qdrant_client import QdrantClient
 import os
 
+"""RETRIEVAL"""
+# find relevant passages
+# top_k = 3: retrieve the 3 most relevant chunks
 def retrieve_evidence(question, top_k=3):
     genai_client = genai.Client(api_key=GEMINI_API_KEY)
-    qdrant_client = QdrantClient(path="qdrant_db")
+    qdrant_client = QdrantClient(path="qdrant_db") # where the chunks are stored
 
     try:
-        # Convert the question into an embedding
+        # Convert ques into an embedding
         response = genai_client.models.embed_content(
             model="gemini-embedding-001",
             contents=question
@@ -16,19 +21,19 @@ def retrieve_evidence(question, top_k=3):
 
         question_embedding = response.embeddings[0].values
 
-        # Retrieve the most relevant chunks
+        # Retrieve the most relevant chunks from Qdrant
         results = qdrant_client.query_points(
             collection_name="research_papers",
             query=question_embedding,
             limit=top_k,
-            with_payload=True
+            with_payload=True # text + metadata
         )
 
-        evidence = []
-        sources = []
+        evidence = [] # text passage Gemini will use to ans
+        sources = [] # paper names and page no.
 
         for result in results.points:
-            source = os.path.basename(result.payload["source"])
+            source = os.path.basename(result.payload["source"]) # takes only the pdf name
             page = result.payload["page no"]
             text = result.payload["text"]
 
@@ -40,32 +45,34 @@ def retrieve_evidence(question, top_k=3):
                 "source": source,
                 "page": page
             })
-
-        return "\n\n".join(evidence), sources
+        # returns 'context'
+        return "\n\n".join(evidence), sources # combines passages with blank lines in between
 
     finally:
         qdrant_client.close()
 
+"""GENERATION"""
 def generate_answer(question, context):
     genai_client = genai.Client(api_key=GEMINI_API_KEY)
 
     prompt = f"""
-    Answer the question using only the evidence below.
+    Answer the question using only the evidence given below.
 
-    Rules:
-    - Make only claims supported by the evidence.
+    Rules to follow while answering:
+    - Make only claims supported by the given evidence.
     - If the evidence is insufficient, clearly say so.
     - Cite the source and page number for factual claims.
-    - Do not invent facts or citations.
+    - Do not fabricate important facts or citations.
 
     Evidence:
     {context}
 
-    Question: {question}
+    Question:
+    {question}
     """
-
+    # send prompt to Gemini API
     response = genai_client.models.generate_content(
-        model="gemini-flash-latest",
+        model="gemini-3.8-flash",
         contents=prompt
     )
 
@@ -83,6 +90,6 @@ def answer_question(question):
     answer = generate_answer(question, context)
 
     return {
-        "answer": answer,
+        "answer": answer, # generated answer based on the retrieved evidence
         "sources": sources
     }

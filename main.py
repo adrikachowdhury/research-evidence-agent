@@ -1,11 +1,13 @@
+### EXTRACT > CHUNK > EMBED
+
 import pymupdf, os, json, time
 from google import genai
 from config import GEMINI_API_KEY
 from vector_store import store_chunks
 from working_functions import (
     _collect_research_papers,
-    _chunking_texts, 
-    _embed_chunks
+    _chunking_texts,
+    _process_and_save_embeddings
 )
 """Finding and reading the PDF files"""
 pdf_folder = "data/papers"
@@ -16,7 +18,7 @@ pdf_files = [
     if file.endswith(".pdf")
 ]
 
-pages = [] # store info about every page containing text
+pages = [] # store info about every page of all papers containing text
 
 for pdf_path in pdf_files: # visits each PDF
     document = pymupdf.open(pdf_path)
@@ -73,7 +75,7 @@ if os.path.exists(checkpoint_file):
 """Connect to Google's API"""
 client = genai.Client(api_key=GEMINI_API_KEY)
 
-batch_size = 2 # 2 chunks per request
+batch_size = 2
 
 """Find the chunks that need embeddings"""
 pending_chunks = [chunk for chunk in chunks if "embedding" not in chunk]
@@ -81,34 +83,14 @@ pending_chunks = [chunk for chunk in chunks if "embedding" not in chunk]
 print("Chunks remaining to embed:", len(pending_chunks))
 
 """Actual embedding: Processing batches and retrying"""
-for i in range(0, len(pending_chunks), batch_size): # start, stop, step
-    batch = pending_chunks[i:i + batch_size] # receive 2 embeddings at a time
-
-    # Retry (3) if Gemini temporarily reaches its rate limit
-    for attempt in range(3):
-        try:
-            _embed_chunks(client, batch) # send to Gemini for embedding and add them
-            break
-
-        except Exception as e: # while Gemini rejected a batch due to rate limit
-            if ("429" in str(e) or "RESOURCE_EXHAUSTED" in str(e)) and attempt < 2:
-                print("Rate limit reached. Waiting 60 seconds before retrying...")
-                time.sleep(60)
-            else:
-                raise
-
-    # Save progress after each successful batch
-    with open(checkpoint_file, "w", encoding="utf-8") as file:
-        json.dump(chunks, file)
-
-    completed = sum(1 for chunk in chunks if "embedding" in chunk)
-    print(f"Embedded {completed}/{len(chunks)} chunks")
+_process_and_save_embeddings(pending_chunks, client, time, batch_size, checkpoint_file, chunks)
 
 print("\nEmbedding process completed.")
 print("Chunks prepared:", len(chunks))
 print("First chunk embedding dimension:", len(chunks[0]["embedding"]))
 print("Total chunks embedded:", sum(1 for chunk in chunks if "embedding" in chunk))
 
+# if every chunk has an embedding, store them in the vector store
 if all("embedding" in chunk for chunk in chunks):
     store_chunks(chunks)
 else:
