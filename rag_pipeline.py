@@ -1,23 +1,36 @@
-### answer_question() → retrieve_evidence() → generate_answer()
+### Coordinates the RAG process: retrieval → answer generation
 
 from google import genai
+from google.genai import types
 from config import GEMINI_API_KEY
 from qdrant_client import QdrantClient
-import os
+import os, time
 
 """RETRIEVAL"""
 # find relevant passages
 # top_k = 3: retrieve the 3 most relevant chunks
 def retrieve_evidence(question, top_k=3):
-    genai_client = genai.Client(api_key=GEMINI_API_KEY)
+    genai_client = genai.Client(
+    api_key=GEMINI_API_KEY,
+    http_options=types.HttpOptions(
+        retry_options=types.HttpRetryOptions(
+            attempts=2,
+            initial_delay=1.0,
+            max_delay=2.0
+        )
+    )
+)
     qdrant_client = QdrantClient(path="qdrant_db") # where the chunks are stored
 
     try:
-        # Convert ques into an embedding
+        start_time = time.time()
+
         response = genai_client.models.embed_content(
             model="gemini-embedding-001",
             contents=question
         )
+
+        print(f"Embedding time: {time.time() - start_time:.2f} seconds")
 
         question_embedding = response.embeddings[0].values
 
@@ -29,8 +42,8 @@ def retrieve_evidence(question, top_k=3):
             with_payload=True # text + metadata
         )
 
-        evidence = [] # text passage Gemini will use to ans
-        sources = [] # paper names and page no.
+        evidence = []
+        sources = []
 
         for result in results.points:
             source = os.path.basename(result.payload["source"]) # takes only the pdf name
@@ -53,7 +66,16 @@ def retrieve_evidence(question, top_k=3):
 
 """GENERATION"""
 def generate_answer(question, context):
-    genai_client = genai.Client(api_key=GEMINI_API_KEY)
+    genai_client = genai.Client(
+    api_key=GEMINI_API_KEY,
+    http_options=types.HttpOptions(
+        retry_options=types.HttpRetryOptions(
+            attempts=2,
+            initial_delay=1.0,
+            max_delay=2.0
+        )
+    )
+)
 
     prompt = f"""
     Answer the question using only the evidence given below.
@@ -70,11 +92,15 @@ def generate_answer(question, context):
     Question:
     {question}
     """
+    start_time = time.time()
+
     # send prompt to Gemini API
     response = genai_client.models.generate_content(
         model="gemini-3.8-flash",
         contents=prompt
     )
+
+    print(f"Answer generation time: {time.time() - start_time:.2f} seconds")
 
     return response.text
 

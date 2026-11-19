@@ -39,6 +39,7 @@ def _embed_chunks(client, chunks):
     )
 
     # Match each embedding with its original chunk
+    # zip pairs each chunk with its corresponding embedding in order
     for chunk, embedding in zip(chunks, response.embeddings):
         chunk["embedding"] = embedding.values
 

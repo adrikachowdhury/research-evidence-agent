@@ -1,4 +1,4 @@
-### EXTRACT > CHUNK > EMBED
+### Runs the initial paper-processing and database-building workflow (EXTRACT > CHUNK > EMBED)
 
 import pymupdf, os, json, time
 from google import genai
@@ -33,8 +33,6 @@ for page in pages:
     text = page["text"] # extract page's text
     start = 0 # chunk starting index (char position 0)
 
-    # loops till the very end of the page's text
-    # until function returns None
     while start < len(text):
         next_start = _chunking_texts(chunk_size, overlap, chunks, page, start, text)
         start = next_start
@@ -48,7 +46,7 @@ checkpoint_file = "embedding_checkpoint.json"
 
 # Load previously saved embeddings if it exists (runs after every successful batch)
 
-# e.g.- you embedded 60 chunks yesterdday but program stopped
+# e.g.- you embedded 60 chunks yesterday but program stopped
 # when running again, we don't want those 60 chunks to be emned all over again
 # checkpoint lets Py recover the embeddings it already geenrated
 if os.path.exists(checkpoint_file):
@@ -66,7 +64,7 @@ if os.path.exists(checkpoint_file):
     ):
         for current, saved in zip(chunks, saved_chunks): # restoring saved embedding
             if "embedding" in saved:
-                current["embedding"] = saved["embedding"]
+                current["embedding"] = saved["embedding"] # copies saved embedding into current chunk
 
         print("Previously saved embeddings loaded.")
     else:
