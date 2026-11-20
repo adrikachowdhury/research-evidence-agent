@@ -52,7 +52,7 @@ You can replace or add PDF files inside `data/papers/`. The processing script au
 When changing the collection, make sure the existing Qdrant database is appropriately cleared or rebuilt first. Otherwise, old records may remain in the database.
 
 ## Project Structure
-
+```
 research-evidence-agent/
 │
 ├── data/
@@ -80,7 +80,7 @@ research-evidence-agent/
 ├── README.md                      # Project overview and setup instructions
 ├── PROJECT_GUIDE.md               # Implementation, testing, and technical details
 └── GLOSSARY.md                    # Beginner-friendly technical definitions
-
+```
 ## Getting Started
 
 ### 1. Clone the repository
