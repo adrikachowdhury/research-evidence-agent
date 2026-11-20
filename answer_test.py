@@ -14,8 +14,6 @@ response = genai_client.models.embed_content(
 question_embedding = response.embeddings[0].values
 
 try:
-    # Retrieve the 3 most relevant chunks
-    # results holds the returned info
     results = qdrant_client.query_points(
         collection_name="research_papers",
         query=question_embedding,
@@ -45,8 +43,6 @@ try:
     # joins the 3 pcs into one long string with blank lines in between 
     context = "\n\n".join(evidence) # combine the evidence
 
-    # give Gemini its instructions and evidence
-    # instruction + context + ques
     prompt = f"""
     Answer the question using only the evidence below.
 
@@ -59,11 +55,9 @@ try:
     Evidence:
     {context}
 
-Question: {question}
-"""
-    # ask Gemini to generate an answer
-    # sends that prompt to Gemini
-    # Gemini reads the ques and evidence, then generates ans
+    Question: {question}
+    """
+
     response = genai_client.models.generate_content(
         model="gemini-flash-latest",
         contents=prompt

@@ -13,26 +13,23 @@ response = genai_client.models.embed_content(
     contents=question
 )
 
-# list of floats representing the meaning of the ques
 question_embedding = response.embeddings[0].values # [0] since there is only one ques
 
 try:
-    # Search for the 3 closest chunks
     results = qdrant_client.query_points(
-        collection_name="research_papers", # cspecifies which collection to search
+        collection_name="research_papers",
         query=question_embedding,
-        limit=3, # return up to 3 closest matches
-        with_payload=True # include the chunk metadata in the results
+        limit=3,
+        with_payload=True
     )
 
     # Display the retrieved evidence
     for result in results.points:
         print("\nSimilarity Score:", result.score)
-        print("Source:", result.payload["source"]) # identifies PDF
+        print("Source:", result.payload["source"])
         print("Page:", result.payload["page no"]) 
         print("Text:", result.payload["text"][:500]) # 1st 500 chars of the matched chunk
 
 # finally- runs whether or not an exception occurs, ensuring the DB connection is closed
 finally:
-    # Close the database connection
     qdrant_client.close()
