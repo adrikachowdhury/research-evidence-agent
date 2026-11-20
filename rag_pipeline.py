@@ -96,7 +96,7 @@ def generate_answer(question, context):
 
     # send prompt to Gemini API
     response = genai_client.models.generate_content(
-        model="gemini-3.8-flash",
+        model="gemini-3.5-flash-lite",
         contents=prompt
     )
 
