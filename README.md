@@ -220,8 +220,8 @@ docker rm research-agent
 
 ## Documentation
 
-- [Project Guide](PROJECT_GUIDE.md): Implementation details, architecture, testing, debugging decisions, and limitations.
-- [Glossary](GLOSSARY.md): Beginner-friendly explanations of the technical terms used in this project.
+- [Project Guide](docs/PROJECT_GUIDE.md): Implementation details, architecture, testing, debugging decisions, and limitations.
+- [Glossary](docs/GLOSSARY.md): Beginner-friendly explanations of the technical terms used in this project.
 
 ## Acknowledgements
 
