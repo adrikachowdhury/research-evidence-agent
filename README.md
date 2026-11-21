@@ -67,10 +67,11 @@ research-evidence-agent/
 ├── app.py                         # FastAPI application and API endpoints
 ├── config.py                      # Loads the Gemini API key
 │
-├── check_database.py              # Checks the contents of the vector database
-├── search_test.py                 # Tests document retrieval
-├── answer_test.py                 # Tests generated answers
-├── list_models.py                 # Lists available Gemini models
+├── scripts/
+│   ├── check_database.py          # Checks the contents of the vector database
+│   ├── search_test.py             # Tests document retrieval
+│   ├── answer_test.py             # Tests generated answers
+│   └── list_models.py             # Lists available Gemini models
 │
 ├── requirements.txt               # Python dependencies
 ├── Dockerfile                     # Instructions for building the Docker image
@@ -78,8 +79,10 @@ research-evidence-agent/
 ├── .gitignore                     # Files excluded from Git
 │
 ├── README.md                      # Project overview and setup instructions
-├── PROJECT_GUIDE.md               # Implementation, testing, and technical details
-└── GLOSSARY.md                    # Beginner-friendly technical definitions
+│
+└── docs/
+    ├── PROJECT_GUIDE.md           # Implementation, testing, and technical details
+    └── GLOSSARY.md                # Beginner-friendly technical definitions
 ```
 ## Getting Started
 
