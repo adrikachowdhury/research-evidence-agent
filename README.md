@@ -49,7 +49,7 @@ The answer-generation process is designed to use the **retrieved passages** as i
 
 You can replace or add PDF files inside `data/papers/`. The processing script automatically detects PDF files in this folder.
 
-When changing the collection, make sure the existing Qdrant database is appropriately cleared or rebuilt first. Otherwise, old records may remain in the database.
+When changing the collection, make sure the existing Qdrant database is appropriately cleared or rebuilt first. Otherwise, old records may remain in the database. So. make sure to delete the existing `qdrant_db/` folder and `embedding_checkpoint.json` before building the database if you're replacing my paper collection.
 
 ## Project Structure
 ```
